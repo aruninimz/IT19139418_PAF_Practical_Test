@@ -28,5 +28,5 @@
     <servlet-name>Jersey Web Application1</servlet-name>
     <url-pattern>/webapi1/*</url-pattern>
   </servlet-mapping>
- 
+  
 </web-app>

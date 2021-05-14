@@ -3,55 +3,7 @@
     pageEncoding="ISO-8859-1"%>
 <%@page import = "com.model.Fund_Management" %>
  
-<%
-	session.setAttribute("statusMsg", "");
-	System.out.println("Trying to process");
-//Save---------------------------------
-	if (request.getParameter("ID") != null)
-	{
-		Fund_Management itemObj = new Fund_Management();
-		String stsMsg = "";
-		
-		//Insert--------------------------
-		if (request.getParameter("hidItemIDSave") == "")
-		{
-					stsMsg = itemObj.insertFund(request.getParameter("ID"),
-					request.getParameter("Title"),
-					request.getParameter("Relesed_Date"),
-					request.getParameter("Expire_Date"),
-					request.getParameter("Type_of_Reserch"),
-					request.getParameter("Anoucement_type"),
-					request.getParameter("Purpose_of_funding"),
-					request.getParameter("Applicant_Instruction"));
-		
-		
-		}
-		else 
-		{
-					stsMsg = itemObj.updateFunds(request.getParameter("hidItemIDSave"),
-					request.getParameter("Title"),
-					request.getParameter("Relesed_Date"),
-					request.getParameter("Expire_Date"),
-					request.getParameter("Type_of_Reserch"),
-					request.getParameter("Anoucement_type"),
-					request.getParameter("Purpose_of_funding"),
-					request.getParameter("Applicant_Instruction"));
-		
-		
-		}
-		session.setAttribute("statusMsg", stsMsg);
-		
-	}
-
-	//Delete-----------------------------
-	if (request.getParameter("hidItemIDDelete") != null)
-	{
-    Fund_Management itemObj = new Fund_Management();
-	String stsMsg =
-	itemObj.deleteFunds(request.getParameter("hidItemIDDelete"));
-	session.setAttribute("statusMsg", stsMsg);
-	}
-%>   
+  
 
 <!DOCTYPE html>
 <html>
@@ -69,55 +21,6 @@
 
 <script type="text/javascript">
 //CLIENT-MODEL================================================================
-function validateItemForm()
-{
-	// CODE
-	if ($("#fundidf").val().trim() == "")
-	{
-		return "Insert Fund ID.";
-	}
-	
-	// NAME
-	if ($("#fname2").val().trim() == "")
-	{
-		return "Insert  Title.";
-	}
-	
-	if ($("#fname6").val().trim() == "")
-	{
-		return "Insert Released Date.";
-	}
-	
-	if ($("#fname7").val().trim() == "")
-	{
-		return "Insert Expire Date.";
-	}
-	
-	if ($("#lname3").val().trim() == "")
-	{
-		return "Insert Type of Research.";
-	}
-	
-	// NAME
-	if ($("#lname4").val().trim() == "")
-	{
-		return "Insert  Announcement type.";
-	}
-	
-	if ($("#lname5").val().trim() == "")
-	{
-		return "Insert Purpose of funding.";
-	}
-	
-	if ($("#lname6").val().trim() == "")
-	{
-		return "Insert Applicant Instruction.";
-	}
-	
-	
-	
-	return true;
-}
 
 $(document).ready(function()
 		{
@@ -147,13 +50,24 @@ $(document).on("click", "#NewFundii", function(event)
 	}
 	
 	// If valid------------------------
-	$("#NewFundf").submit();
+			 var type = ($("#hidItemIDSave").val() == "") ? "POST" : "PUT"; 
+		 $.ajax( 
+		 { 
+		 url : "webapi1", 
+		 type : type, 
+		 data : $("#NewFundf").serialize(), 
+		 dataType : "text", 
+		 complete : function(response, status) 
+		 { 
+		 onItemSaveComplete(response.responseText, status); 
+		 } 
 });
 
 //UPDATE==========================================
 $(document).on("click", ".btnUpdate", function(event)
 {
-	$("#hidItemIDSave").val($(this).closest("tr").find('#hidItemIDUpdate').val());
+	//$("#hidItemIDSave").val($(this).closest("tr").find('#hidItemIDUpdate').val());
+	$("#hidItemIDSave").val($(this).data("id")
 	$("#fundidf").val($(this).closest("tr").find('td:eq(0)').text());
 	$("#fname2").val($(this).closest("tr").find('td:eq(1)').text());
 	$("#fname6").val($(this).closest("tr").find('td:eq(2)').text());
@@ -165,8 +79,126 @@ $(document).on("click", ".btnUpdate", function(event)
 });
 
 
+	// DELETE===========================================
+	$(document).on("click", ".btnRemove", function(event)
+	{ 
+	 $.ajax( 
+	 { 
+	 url : "webapi1", 
+	 type : "DELETE", 
+	 data : "id=" + $(this).data("id"),
+	 dataType : "text", 
+	 complete : function(response, status) 
+	 { 
+	 onItemDeleteComplete(response.responseText, status); 
+	 } 
+	 }); 
+});
 
+	
+	function validateItemForm()
+	{
+		// CODE
+		if ($("#fundidf").val().trim() == "")
+		{
+			return "Insert Fund ID.";
+		}
+		
+		// NAME
+		if ($("#fname2").val().trim() == "")
+		{
+			return "Insert  Title.";
+		}
+		
+		if ($("#fname6").val().trim() == "")
+		{
+			return "Insert Released Date.";
+		}
+		
+		if ($("#fname7").val().trim() == "")
+		{
+			return "Insert Expire Date.";
+		}
+		
+		if ($("#lname3").val().trim() == "")
+		{
+			return "Insert Type of Research.";
+		}
+		
+		// NAME
+		if ($("#lname4").val().trim() == "")
+		{
+			return "Insert  Announcement type.";
+		}
+		
+		if ($("#lname5").val().trim() == "")
+		{
+			return "Insert Purpose of funding.";
+		}
+		
+		if ($("#lname6").val().trim() == "")
+		{
+			return "Insert Applicant Instruction.";
+		}
+		
+		
+		
+		return true;
+	}
 
+	function onItemSaveComplete(response, status)
+	{ 
+	if (status == "success") 
+	 { 
+	 var resultSet = JSON.parse(response); 
+	 if (resultSet.status.trim() == "success") 
+	 { 
+	 $("#alertSuccess").text("Successfully saved."); 
+	 $("#alertSuccess").show();
+	 $("#divItemsGrid").html(resultSet.data); 
+	 } else if (resultSet.status.trim() == "error") 
+	 { 
+	 $("#alertError").text(resultSet.data); 
+	 $("#alertError").show(); 
+	 } 
+	 } else if (status == "error") 
+	 { 
+	 $("#alertError").text("Error while saving."); 
+	 $("#alertError").show(); 
+	 } else
+	 { 
+	 $("#alertError").text("Unknown error while saving.."); 
+	 $("#alertError").show(); 
+	 } 
+	 $("#hidItemIDSave").val(""); 
+	 $("#NewFundf")[0].reset(); 
+}
+	
+	function onItemDeleteComplete(response, status)
+	{ 
+	if (status == "success") 
+	 { 
+	 var resultSet = JSON.parse(response); 
+	 if (resultSet.status.trim() == "success") 
+	 { 
+	 $("#alertSuccess").text("Successfully deleted."); 
+	 $("#alertSuccess").show();
+	 $("#divItemsGrid").html(resultSet.data); 
+	 } else if (resultSet.status.trim() == "error") 
+	 { 
+	 $("#alertError").text(resultSet.data); 
+	 $("#alertError").show(); 
+	 } 
+	 } else if (status == "error") 
+	 { 
+	 $("#alertError").text("Error while deleting."); 
+	 $("#alertError").show(); 
+	 } else
+	 { 
+	 $("#alertError").text("Unknown error while deleting.."); 
+	 $("#alertError").show(); 
+ } 
+}
 
 </script>
 
@@ -244,12 +276,12 @@ $(document).on("click", ".btnUpdate", function(event)
 	</div>
 	<br>
 	<div id="alertSuccess" class="alert alert-success">
-		<% out.print(session.getAttribute("statusMsg")); %>
+		<!--  <% out.print(session.getAttribute("statusMsg")); %>-->
 	</div>
 	<div id="alertError" class="alert alert-danger"></div>
 	
 	  <br><br>
-	<div class="row"style="padding-top: 10px; padding-right: 50px; padding-left: 50px;border-style: solid; border-color: #197dff;">
+	<div class="row" id="divItemsGrid" style="padding-top: 10px; padding-right: 50px; padding-left: 50px;border-style: solid; border-color: #197dff;">
 		<% 
 			Fund_Management obj = new Fund_Management();
 			out.print(obj.readFunds());

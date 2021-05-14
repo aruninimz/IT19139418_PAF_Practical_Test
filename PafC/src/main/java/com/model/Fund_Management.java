@@ -111,9 +111,9 @@ public class Fund_Management {
 			con1.close();
 			output = "Inserted successfully"; 
 
-			//String newItems = readFunds();
-			//output = "{\"status\":\"success\", \"data\": \"" +
-			//newItems + "\"}";
+			String newItems = readFunds();
+			output = "{\"status\":\"success\", \"data\": \"" +
+			newItems + "\"}";
 			
 			} 
 			catch (Exception e) {
@@ -165,9 +165,9 @@ public class Fund_Management {
 				output += "<td>" + Applicant_Instruction + "</td>";
 				
 				
-				output += "<td><input name='btnUpdate'type='button' value='Update'class=' btnUpdate btn btn-secondary'></td>"
+				output += "<td><input name='btnUpdate'type='button' value='Update'class=' btnUpdate btn btn-secondary' data-id='" +id+"'></td>"
 						+"<td><form method='post' action='InsertFund.jsp'>"
-						+"<input name='btnRemove' type='submit' value='Remove' class='btn btn-danger'>"
+						+"<input name='btnRemove' type='button' value='Remove' class='btn btn-danger' data-id='"+id+"'>"
 						+"<input name='hidItemIDDelete' type='hidden'value='" + id + "'>" + "</form></td></tr>";
 			}
 
@@ -220,13 +220,17 @@ public class Fund_Management {
 			 preparedStmt.execute(); 
 			 con.close();
 
-			output = "Fund details update successfully.";
+			//output = "Fund details update successfully.";
+			 String newItems = readFunds();
+				output = "{\"status\":\"success\", \"data\": \"" +
+				newItems + "\"}";
 		
 		}
 
 		catch (Exception e) {
-
-			output = "An error occurred while updating the fund details.";
+			output = "{\"status\":\"error\", \"data\":\"Error while inserting the item.\"}";
+			//System.err.println(e.getMessage());
+			//output = "An error occurred while updating the fund details.";
 			System.err.println(e.getMessage());
 		}
 		return output;
@@ -259,11 +263,15 @@ public class Fund_Management {
 
 			con.close();
 
-			output = "Fund Details deleted successfully.";
+			//output = "Fund Details deleted successfully.";
+			String newItems = readFunds();
+			output = "{\"status\":\"success\", \"data\": \"" +
+			newItems + "\"}";
 			
 		} catch (Exception e) {
-
-			output = " An error occurred while deleting the fund details.";
+			output = "{\"status\":\"error\", \"data\":\"Error while inserting the item.\"}";
+			//System.err.println(e.getMessage());
+			//output = " An error occurred while deleting the fund details.";
 			System.err.println(e.getMessage());
 		}
 		return output;
